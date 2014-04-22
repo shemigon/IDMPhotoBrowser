@@ -133,6 +133,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 @synthesize actionsSheet = _actionsSheet, activityViewController = _activityViewController;
 @synthesize trackTintColor = _trackTintColor, progressTintColor = _progressTintColor;
 @synthesize delegate = _delegate;
+@synthesize defaultScaleToFill = _defaultScaleToFill;
 
 #pragma mark - NSObject
 
@@ -168,6 +169,8 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         _animationDuration = 0.28;
         _senderViewForAnimation = nil;
         _scaleImage = nil;
+
+        _defaultScaleToFill = NO;
         
         if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)])
             self.automaticallyAdjustsScrollViewInsets = NO;
@@ -992,6 +995,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
             // Add new page
 			IDMZoomingScrollView *page;
             page = [[IDMZoomingScrollView alloc] initWithPhotoBrowser:self];
+            page.defaultScaleToFill = _defaultScaleToFill;
             page.backgroundColor = [UIColor clearColor];
             page.opaque = YES;
             

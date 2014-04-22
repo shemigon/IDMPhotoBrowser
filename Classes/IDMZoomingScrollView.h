@@ -32,6 +32,8 @@
 @property (nonatomic, strong) IDMCaptionView *captionView;
 @property (nonatomic, strong) id<IDMPhoto> photo;
 
+@property(nonatomic, assign) BOOL defaultScaleToFill; // Default: NO
+
 - (id)initWithPhotoBrowser:(IDMPhotoBrowser *)browser;
 - (void)displayImage;
 - (void)displayImageFailure;

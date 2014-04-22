@@ -49,6 +49,7 @@
 
 // defines zooming of the background defauly 1.0
 @property (nonatomic) float backgroundScaleFactor;
+@property(nonatomic, assign) BOOL defaultScaleToFill;
 
 // animation time defult .28
 @property (nonatomic) float animationDuration;
