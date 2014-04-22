@@ -8,6 +8,7 @@
 
 #import "IDMPhoto.h"
 #import "IDMPhotoBrowser.h"
+#import "SDWebImageManager.h"
 
 // Private
 @interface IDMPhoto () {
@@ -136,25 +137,19 @@ caption = _caption;
             [self performSelectorInBackground:@selector(loadImageFromFileAsync) withObject:nil];
         } else if (_photoURL) {
             // Load async from web (using AFNetworking)
-            NSURLRequest *request = [NSURLRequest requestWithURL:_photoURL];
-            
-            AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-            op.responseSerializer = [AFImageResponseSerializer serializer];
-
-            [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                UIImage *image = responseObject;
-                self.underlyingImage = image;
-                [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) { }];
-            
-            [op setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
-                CGFloat progress = ((CGFloat)totalBytesRead)/((CGFloat)totalBytesExpectedToRead);
-                if (self.progressUpdateBlock) {
-                    self.progressUpdateBlock(progress);
-                }
-            }];
-            
-            [[NSOperationQueue mainQueue] addOperation:op];
+            [[SDWebImageManager sharedManager]
+                    downloadWithURL:_photoURL
+                            options:SDWebImageRetryFailed | SDWebImageHighPriority
+                           progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                               CGFloat progress = ((CGFloat) receivedSize) / ((CGFloat) expectedSize);
+                               if (self.progressUpdateBlock) {
+                                   self.progressUpdateBlock(progress);
+                               }
+                           }
+                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+                              self.underlyingImage = image;
+                              [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
+                          }];
         } else {
             // Failed - no source
             self.underlyingImage = nil;
