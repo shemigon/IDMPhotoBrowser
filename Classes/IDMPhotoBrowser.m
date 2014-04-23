@@ -128,6 +128,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 // Properties
 @synthesize displayDoneButton = _displayDoneButton, displayToolbar = _displayToolbar, displayActionButton = _displayActionButton, displayCounterLabel = _displayCounterLabel, useWhiteBackgroundColor = _useWhiteBackgroundColor, doneButtonImage = _doneButtonImage;
 @synthesize leftArrowImage = _leftArrowImage, rightArrowImage = _rightArrowImage, leftArrowSelectedImage = _leftArrowSelectedImage, rightArrowSelectedImage = _rightArrowSelectedImage;
+@synthesize controlsInitiallyHidden = _controlsInitiallyHidden;
 @synthesize displayArrowButton = _displayArrowButton, actionButtonTitles = _actionButtonTitles;
 @synthesize arrowButtonsChangePhotosAnimated = _arrowButtonsChangePhotosAnimated;
 @synthesize actionsSheet = _actionsSheet, activityViewController = _activityViewController;
@@ -158,6 +159,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         _displayActionButton = YES;
         _displayArrowButton = YES;
         _displayCounterLabel = NO;
+        _controlsInitiallyHidden = NO;
         
         _useWhiteBackgroundColor = NO;
         _leftArrowImage = _rightArrowImage = _leftArrowSelectedImage = _rightArrowSelectedImage = nil;
@@ -631,8 +633,12 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     }*/
     
     // Update UI
-	[self hideControlsAfterDelay];
-	
+    if (_controlsInitiallyHidden) {
+        [self hideControls];
+    } else {
+        [self hideControlsAfterDelay];
+    }
+
 	_statusBarOriginallyHidden = [UIApplication sharedApplication].statusBarHidden;
 	[[UIApplication sharedApplication] setStatusBarHidden:YES
 											withAnimation:(animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone)];

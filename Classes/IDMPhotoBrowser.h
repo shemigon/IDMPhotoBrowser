@@ -36,6 +36,7 @@
 @property (nonatomic, strong) NSArray *actionButtonTitles;
 @property (nonatomic, weak) UIImage *leftArrowImage, *leftArrowSelectedImage;
 @property (nonatomic, weak) UIImage *rightArrowImage, *rightArrowSelectedImage;
+@property (nonatomic) BOOL controlsInitiallyHidden;
 
 // View customization
 @property (nonatomic) BOOL displayDoneButton;
