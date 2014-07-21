@@ -63,12 +63,15 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     BOOL _viewIsActive; // active as in it's in the view heirarchy
     BOOL _autoHide;
     NSInteger _initalPageIndex;
+
+    BOOL _isdraggingPhoto;
     
     CGRect _resizableImageViewFrame;
     //UIImage *_backgroundScreenshot;
     
     UIWindow *_applicationWindow;
     UIViewController *_applicationRootViewController;
+    int _previousModalPresentationStyle;
 }
 
 // Private Properties
@@ -170,15 +173,19 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         _animationDuration = 0.28;
         _senderViewForAnimation = nil;
         _scaleImage = nil;
+
+        _isdraggingPhoto = NO;
         
         if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)])
             self.automaticallyAdjustsScrollViewInsets = NO;
         
         _applicationWindow = [[[UIApplication sharedApplication] delegate] window];
-        _applicationRootViewController = [_applicationWindow rootViewController];
         
         // if remove this: rotation works, but screw presentation/animation
-        if(kUSE_CURRENT_CONTEXT_PRESENTATION_STYLE) _applicationRootViewController.modalPresentationStyle = UIModalPresentationCurrentContext;
+        _previousModalPresentationStyle = _applicationRootViewController.modalPresentationStyle;
+
+        _applicationRootViewController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+        _applicationRootViewController.modalPresentationStyle = UIModalPresentationCurrentContext;
         
         self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         
@@ -265,6 +272,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         firstY = [scrollView center].y;
         
         _senderViewForAnimation.hidden = (_currentPageIndex == _initalPageIndex);
+
+        _isdraggingPhoto = YES;
+        [self setNeedsStatusBarAppearanceUpdate];
     }
     
     translatedPoint = CGPointMake(firstX, firstY+translatedPoint.y);
@@ -314,6 +324,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         }
         else // Continue Showing View
         {
+            _isdraggingPhoto = NO;
+            [self setNeedsStatusBarAppearanceUpdate];
+
             self.view.backgroundColor = [UIColor colorWithWhite:(_useWhiteBackgroundColor ? 1 : 0) alpha:1];
             //self.view.backgroundColor = [UIColor colorWithPatternImage:[self getImageFromView:backgroundImageView]];
             
@@ -467,8 +480,8 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [self dismissViewControllerAnimated:animated completion:^{
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDismissAtPageIndex:)])
             [_delegate photoBrowser:self didDismissAtPageIndex:_currentPageIndex];
-        
-        _applicationRootViewController.modalPresentationStyle = 1;
+
+        _applicationRootViewController.modalPresentationStyle = _previousModalPresentationStyle;
     }];
 }
 
@@ -638,23 +651,11 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     } else {
         [self hideControlsAfterDelay];
     }
-
-	_statusBarOriginallyHidden = [UIApplication sharedApplication].statusBarHidden;
-	[[UIApplication sharedApplication] setStatusBarHidden:YES
-											withAnimation:(animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone)];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     _viewIsActive = YES;
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-	[super viewWillDisappear:animated];
-	
-	[[UIApplication sharedApplication] setStatusBarHidden:_statusBarOriginallyHidden
-											withAnimation:(animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone)];
 }
 
 // Release any retained subviews of the main view.
@@ -678,7 +679,11 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 }
 
 - (BOOL)prefersStatusBarHidden {
-	return YES;
+    if (_isdraggingPhoto) {
+        return NO;
+    } else {
+        return [self areControlsHidden];
+    }
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
@@ -1239,7 +1244,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     }
     
     // Hide/show bars
-    [UIView animateWithDuration:(animated ? 0.35 : 0) animations:^(void) {
+    [UIView animateWithDuration:(animated ? 0.1 : 0) animations:^(void) {
         CGFloat alpha = hidden ? 0 : 1;
         [self.navigationController.navigationBar setAlpha:alpha];
         [_toolbar setAlpha:alpha];
@@ -1250,6 +1255,8 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 	// Control hiding timer
 	// Will cancel existing timer but only begin hiding if they are visible
 	if (!permanent) [self hideControlsAfterDelay];
+
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void)cancelControlHiding {
