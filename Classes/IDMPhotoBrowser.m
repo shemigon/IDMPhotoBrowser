@@ -158,6 +158,8 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         
         _displayDoneButton = YES;
         _doneButtonImage = nil;
+
+        _closeOnTap = NO;
         
         _displayToolbar = YES;
         _displayActionButton = YES;
