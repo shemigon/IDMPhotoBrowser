@@ -767,8 +767,13 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     }
     
     // Close button
-    if(_displayDoneButton && !self.navigationController.navigationBar)
+    if(_displayDoneButton && !self.navigationController.navigationBar) {
         [self.view addSubview:_doneButton];
+    } else {
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneButtonPressed:)];
+        tapGesture.numberOfTapsRequired = 1;
+        [self.view addGestureRecognizer:tapGesture];
+    }
     
     // Toolbar items & navigation
     UIBarButtonItem *fixedLeftSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
