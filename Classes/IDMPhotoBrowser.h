@@ -46,6 +46,7 @@
 @property (nonatomic) BOOL closeOnTap;
 
 @property (nonatomic, weak) UIImage *scaleImage;
+@property (nonatomic, weak) NSURL *scaleImageURL;
 
 @property (nonatomic) BOOL arrowButtonsChangePhotosAnimated;
 
