@@ -10,6 +10,7 @@
 #import "IDMPhotoBrowser.h"
 #import "IDMZoomingScrollView.h"
 #import "SVProgressHUD.h"
+#import "SDWebImageManager.h"
 
 #define kUSE_CURRENT_CONTEXT_PRESENTATION_STYLE 1
 
@@ -176,6 +177,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         _animationDuration = 0.28;
         _senderViewForAnimation = nil;
         _scaleImage = nil;
+        _scaleImageURL = nil;
 
         _isdraggingPhoto = NO;
 
@@ -461,6 +463,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         _senderViewForAnimation.hidden = NO;
         _senderViewForAnimation = nil;
         _scaleImage = nil;
+        _scaleImageURL = nil;
 
         [fadeView removeFromSuperview];
         [resizableImageView removeFromSuperview];
@@ -1037,6 +1040,20 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
             [_visiblePages addObject:page];
             [_pagingScrollView addSubview:page];
             IDMLog(@"Added page at index %i", index);
+
+            if (_scaleImageURL) {
+                SDWebImageManager *sharedManager = [SDWebImageManager sharedManager];
+                [sharedManager downloadImageWithURL:_scaleImageURL
+                                            options:0
+                                           progress:^(NSInteger receivedSize, NSInteger expectedSize) {  }
+                                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                    if (image) {
+                        IDMPhoto *photo = [[IDMPhoto alloc] initWithImage:image];
+                        _photos[index] = photo;
+                        [self configurePage:page forIndex:index];
+                    }
+                }];
+            }
 
             // Add caption
             IDMCaptionView *captionView = [self captionViewForPhotoAtIndex:index];
