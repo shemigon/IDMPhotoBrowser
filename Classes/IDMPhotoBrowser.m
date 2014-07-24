@@ -294,12 +294,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     float newX = scrollView.center.x - viewHalfWidth;
     float newY = scrollView.center.y - viewHalfHeight;
 
-    float newAlpha;
-    if (newX > newY) {
-        newAlpha = 1 - abs(newX) / viewWidth;
-    } else {
-        newAlpha = 1 - abs(newY) / viewHeight;
-    }
+    float avgPos = (scrollView.frame.origin.x + scrollView.frame.origin.y) / 2;
+    float avgSize = (viewWidth + viewHeight) / 2;
+    float newAlpha = 1 - abs(avgPos) / avgSize;
 
     self.view.opaque = YES;
     
@@ -442,7 +439,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
 }
 
 - (void)performCloseAnimationWithScrollView:(IDMZoomingScrollView*)scrollView {
-    float fadeAlpha = 1 - abs(scrollView.frame.origin.y)/scrollView.frame.size.height;
+    float avgPos = (scrollView.frame.origin.x + scrollView.frame.origin.y) / 2;
+    float avgSize = (scrollView.frame.size.width + scrollView.frame.size.height) / 2;
+    float fadeAlpha = 1 - abs(avgPos)/avgSize;
     
     UIImage *imageFromView = [scrollView.photo underlyingImage];
     //imageFromView = [self rotateImageToCurrentOrientation:imageFromView];
@@ -459,7 +458,11 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [_applicationWindow addSubview:fadeView];
     
     UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    resizableImageView.frame = (imageFromView) ? CGRectMake(0, (screenHeight/2)-((imageFromView.size.height / scaleFactor)/2)+scrollView.frame.origin.y, screenWidth, imageFromView.size.height / scaleFactor) : CGRectZero;
+    resizableImageView.frame = (imageFromView) ? CGRectMake(
+            (screenWidth/2)-((imageFromView.size.width / scaleFactor)/2)+scrollView.frame.origin.x,
+            (screenHeight/2)-((imageFromView.size.height / scaleFactor)/2)+scrollView.frame.origin.y,
+            screenWidth,
+            imageFromView.size.height / scaleFactor) : CGRectZero;
     resizableImageView.contentMode = UIViewContentModeScaleAspectFill;
     resizableImageView.backgroundColor = [UIColor clearColor];
     resizableImageView.clipsToBounds = YES;
