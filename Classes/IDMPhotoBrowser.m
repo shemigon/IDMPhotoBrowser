@@ -458,7 +458,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [_applicationWindow addSubview:fadeView];
     
     UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    if (scrollView.contentOffset.x == 0) {
+    if (scrollView.contentSize.width <= screenWidth) {
         resizableImageView.frame = (imageFromView) ? CGRectMake(
                 (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x,
                 (screenHeight / 2) - ((imageFromView.size.height / scaleFactor) / 2) + scrollView.frame.origin.y,
@@ -469,7 +469,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
         CGFloat newY = screenHeight / 2 - imageFromView.size.height * scrollView.zoomScale / 2;
         visibleRect.origin = CGPointMake(
                 -scrollView.contentOffset.x,
-                scrollView.contentOffset.y == 0 ? newY : -scrollView.contentOffset.y
+                scrollView.contentSize.height <= screenHeight ? newY : -scrollView.contentOffset.y
         );
         visibleRect.size = scrollView.contentSize;
         resizableImageView.frame = visibleRect;
