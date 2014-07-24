@@ -138,18 +138,18 @@ caption = _caption;
         } else if (_photoURL) {
             // Load async from web (using AFNetworking)
             [[SDWebImageManager sharedManager]
-                    downloadWithURL:_photoURL
-                            options:SDWebImageRetryFailed | SDWebImageHighPriority
-                           progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-                               CGFloat progress = ((CGFloat) receivedSize) / ((CGFloat) expectedSize);
-                               if (self.progressUpdateBlock) {
-                                   self.progressUpdateBlock(progress);
-                               }
-                           }
-                          completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
-                              self.underlyingImage = image;
-                              [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
-                          }];
+                    downloadImageWithURL:_photoURL
+                                 options:SDWebImageRetryFailed | SDWebImageHighPriority
+                                progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                                    CGFloat progress = ((CGFloat) receivedSize) / ((CGFloat) expectedSize);
+                                    if (self.progressUpdateBlock) {
+                                        self.progressUpdateBlock(progress);
+                                    }
+                                }
+                               completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                                   self.underlyingImage = image;
+                                   [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
+                               }];
         } else {
             // Failed - no source
             self.underlyingImage = nil;
