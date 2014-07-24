@@ -442,7 +442,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     float avgPos = (scrollView.frame.origin.x + scrollView.frame.origin.y) / 2;
     float avgSize = (scrollView.frame.size.width + scrollView.frame.size.height) / 2;
     float fadeAlpha = 1 - abs(avgPos)/avgSize;
-    
+
     UIImage *imageFromView = [scrollView.photo underlyingImage];
     //imageFromView = [self rotateImageToCurrentOrientation:imageFromView];
     
@@ -458,11 +458,22 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     [_applicationWindow addSubview:fadeView];
     
     UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
-    resizableImageView.frame = (imageFromView) ? CGRectMake(
-            (screenWidth/2)-((imageFromView.size.width / scaleFactor)/2)+scrollView.frame.origin.x,
-            (screenHeight/2)-((imageFromView.size.height / scaleFactor)/2)+scrollView.frame.origin.y,
-            screenWidth,
-            imageFromView.size.height / scaleFactor) : CGRectZero;
+    if (scrollView.contentOffset.x == 0) {
+        resizableImageView.frame = (imageFromView) ? CGRectMake(
+                (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x,
+                (screenHeight / 2) - ((imageFromView.size.height / scaleFactor) / 2) + scrollView.frame.origin.y,
+                screenWidth,
+                imageFromView.size.height / scaleFactor) : CGRectZero;
+    } else {
+        CGRect visibleRect;
+        CGFloat newY = screenHeight / 2 - imageFromView.size.height * scrollView.zoomScale / 2;
+        visibleRect.origin = CGPointMake(
+                -scrollView.contentOffset.x,
+                scrollView.contentOffset.y == 0 ? newY : -scrollView.contentOffset.y
+        );
+        visibleRect.size = scrollView.contentSize;
+        resizableImageView.frame = visibleRect;
+    }
     resizableImageView.contentMode = UIViewContentModeScaleAspectFill;
     resizableImageView.backgroundColor = [UIColor clearColor];
     resizableImageView.clipsToBounds = YES;
