@@ -460,7 +460,7 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
     if (scrollView.contentSize.width <= screenWidth) {
         resizableImageView.frame = (imageFromView) ? CGRectMake(
-                (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x,
+                (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x - 10,
                 (screenHeight / 2) - ((imageFromView.size.height / scaleFactor) / 2) + scrollView.frame.origin.y,
                 screenWidth,
                 imageFromView.size.height / scaleFactor) : CGRectZero;
