@@ -459,11 +459,19 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     
     UIImageView *resizableImageView = [[UIImageView alloc] initWithImage:imageFromView];
     if (scrollView.contentSize.width <= screenWidth) {
-        resizableImageView.frame = (imageFromView) ? CGRectMake(
-                (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x - 10,
-                (screenHeight / 2) - ((imageFromView.size.height / scaleFactor) / 2) + scrollView.frame.origin.y,
-                screenWidth,
-                imageFromView.size.height / scaleFactor) : CGRectZero;
+        if (scrollView.frame.origin.y < 0) {
+            CGRect scrollRect = scrollView.frame;
+            scrollRect.origin.x -= 10;
+            scrollRect.size.height -= 40;
+            scrollRect.origin.y += 19;
+            resizableImageView.frame = (imageFromView) ? scrollRect : CGRectZero;
+        } else {
+            resizableImageView.frame = (imageFromView) ? CGRectMake(
+                    (screenWidth / 2) - ((imageFromView.size.width / scaleFactor) / 2) + scrollView.frame.origin.x - 10,
+                    (screenHeight / 2) - ((imageFromView.size.height / scaleFactor) / 2) + scrollView.frame.origin.y,
+                    screenWidth,
+                    imageFromView.size.height / scaleFactor) : CGRectZero;
+        }
     } else {
         CGRect visibleRect;
         CGFloat newY = screenHeight / 2 - imageFromView.size.height * scrollView.zoomScale / 2;
@@ -1087,6 +1095,21 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
     // view, so its frame is in window coordinate space, which is never rotated. Its bounds, however, will be in landscape
     // because it has a rotation transform applied.
     CGRect bounds = _pagingScrollView.bounds;
+
+    CGSize photoSize = ((IDMPhoto *)[_photos objectAtIndex:index]).underlyingImage.size;
+    CGFloat prop = photoSize.width / photoSize.height;
+
+    if (photoSize.width != bounds.size.width) {
+        photoSize.width = bounds.size.width;
+        photoSize.height = photoSize.width / prop;
+    }
+
+    if (photoSize.height > bounds.size.height) {
+        bounds.origin.y = (photoSize.height - bounds.size.height) / 2 * -1;
+        bounds.origin.y += 1;
+        bounds.size.height = photoSize.height;
+    }
+
     CGRect pageFrame = bounds;
     pageFrame.size.width -= (2 * PADDING);
     pageFrame.origin.x = (bounds.size.width * index) + PADDING;
