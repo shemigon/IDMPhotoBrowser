@@ -433,6 +433,9 @@ NSLocalizedStringFromTableInBundle((key), nil, [NSBundle bundleWithPath:[[NSBund
             completion();
         }];
     }
+
+    _senderViewForAnimation.hidden = NO;
+    _senderViewForAnimation = nil;
 }
 
 - (void)performCloseAnimationWithScrollView:(IDMZoomingScrollView*)scrollView {
